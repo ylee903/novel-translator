@@ -3,8 +3,8 @@ import json
 
 # Configuration
 OLLAMA_API_URL = "http://localhost:11434/api/generate"  # Ollama API endpoint
-INPUT_FILE = "path/to/your/large_file.txt"  # Path to your input .txt file
-OUTPUT_FILE = "path/to/your/translated_file.txt"  # Path to save the translated output
+INPUT_FILE = r"C:\Users\Samuel\Documents\translate large novels\input"  # Path to your input .txt file
+OUTPUT_FILE = r"C:\Users\Samuel\Documents\translate large novels\output"  # Path to save the translated output
 MAX_CHUNK_LENGTH = 500  # Maximum number of characters per chunk
 MODEL_NAME = "deepseek"  # Name of the model you're using (e.g., deepseek)
 
