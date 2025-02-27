@@ -1,51 +1,34 @@
 import requests
 
-# Configuration
-DOCKER_API_URL = "http://localhost:5000/translate"  # Docker API endpoint for Deepseek-r1:8b
-INPUT_FILE = "input.txt"  # Path to your input .txt file
-OUTPUT_FILE = "output.txt"  # Path to save the translated output
-PROMPT = "Translate the following text to French:"  # Customize the prompt here
-
-def read_text(file_path):
-    """
-    Read text from a file.
-    """
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file.read()
-
-def translate_text(text, prompt):
-    """
-    Send text to the Deepseek-r1:8b model via Docker for translation.
-    """
+# Define the function to send a request to Ollama
+def query_ollama(prompt):
+    url = "http://localhost:11434/api/generate"  # Ollama API URL
     payload = {
-        "prompt": f"{prompt} {text}",
-        "max_tokens": 100  # Adjust based on your needs
+        "model": "deepseek-r1:8b",  # Change to your actual model name
+        "prompt": prompt,
+        "stream": False  # Ensures response comes as a single JSON object
     }
-    response = requests.post(DOCKER_API_URL, json=payload)
-    if response.status_code == 200:
-        return response.json().get("translation", "Translation failed.")
-    else:
-        raise Exception(f"Translation failed: {response.text}")
 
-def save_text(file_path, text):
-    """
-    Save text to a file.
-    """
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(text)
+    try:
+        response = requests.post(url, json=payload)  # Send the request
+        response.raise_for_status()  # Raise an error if request fails
+        result = response.json()  # Parse JSON response
 
-def main():
-    # Read the input text file
-    input_text = read_text(INPUT_FILE)
-    print(f"Input text: {input_text}")
+        # Debug: Print the entire response to see the structure
+        print("\n🔍 Full Response from Ollama:", result)
 
-    # Translate the text
-    translated_text = translate_text(input_text, PROMPT)
-    print(f"Translated text: {translated_text}")
+        # Extract response text safely
+        return result.get("response", "No response found")  # Get the generated text
 
-    # Save the translated text to the output file
-    save_text(OUTPUT_FILE, translated_text)
-    print(f"Translation saved to {OUTPUT_FILE}")
+    except requests.exceptions.JSONDecodeError as e:
+        return f"JSON decoding error: {e}\nResponse text: {response.text}"
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
 
-if __name__ == "__main__":
-    main()
+# Example usage: Send a prompt to the model
+prompt_text = "Hello! How are you today?"
+output = query_ollama(prompt_text)
+
+# Print the response
+print("\n🧠 LLM Response:")
+print(output)
